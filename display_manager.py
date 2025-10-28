@@ -56,17 +56,12 @@ class DisplayManager:
             logger.error(f"Error initializing display: {e}")
             return None
     
-    def process_image(self, image_file, scale: float = 1.0, offset_x: float = 0, offset_y: float = 0,
-                     crop_x: int = 0, crop_y: int = 0, crop_w: Optional[int] = None, 
-                     crop_h: Optional[int] = None, rotation: int = 90) -> Image.Image:
-        """Convert and resize image for e-Paper display with optional scaling, offset, cropping, and rotation"""
+    def process_image(self, image_file, scale: float = 1.0, crop_x: int = 0, crop_y: int = 0, 
+                     crop_w: Optional[int] = None, crop_h: Optional[int] = None) -> Image.Image:
+        """Convert and resize image for e-Paper display with optional scaling and cropping"""
         try:
             img = Image.open(image_file)
             img = img.convert('RGB')
-            
-            # Apply rotation first
-            if rotation != 0:
-                img = img.rotate(rotation, expand=True)
             
             # Apply scaling
             if scale != 1.0:
@@ -78,14 +73,6 @@ class DisplayManager:
                 crop_w = Config.DISPLAY_WIDTH
             if crop_h is None:
                 crop_h = Config.DISPLAY_HEIGHT
-            
-            # Apply offset (move the image)
-            if offset_x != 0 or offset_y != 0:
-                # Create a larger canvas to accommodate the offset
-                offset_canvas = Image.new('RGB', 
-                    (img.width + abs(int(offset_x)), img.height + abs(int(offset_y))), 'white')
-                offset_canvas.paste(img, (max(0, int(offset_x)), max(0, int(offset_y))))
-                img = offset_canvas
             
             # Apply cropping
             if crop_x > 0 or crop_y > 0 or crop_w < img.width or crop_h < img.height:

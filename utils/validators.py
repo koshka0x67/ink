@@ -69,17 +69,6 @@ class InputValidator:
         except (ValueError, TypeError):
             raise ValidationError("Invalid scale value")
         
-        # Offset validation
-        for param in ['offset_x', 'offset_y']:
-            value = image_data.get(param, 0)
-            try:
-                value = float(value)
-                if not (-cls.MAX_CROP <= value <= cls.MAX_CROP):
-                    raise ValidationError(f"{param} must be between {-cls.MAX_CROP} and {cls.MAX_CROP}")
-                validated[param] = value
-            except (ValueError, TypeError):
-                raise ValidationError(f"Invalid {param} value")
-        
         # Crop validation
         for param in ['crop_x', 'crop_y', 'crop_w', 'crop_h']:
             value = image_data.get(param, 0)
@@ -90,16 +79,6 @@ class InputValidator:
                 validated[param] = value
             except (ValueError, TypeError):
                 raise ValidationError(f"Invalid {param} value")
-        
-        # Rotation validation
-        rotation = image_data.get('rotation', 90)
-        try:
-            rotation = int(rotation)
-            if rotation not in cls.VALID_ROTATIONS:
-                raise ValidationError("Rotation must be 0, 90, 180, or 270 degrees")
-            validated['rotation'] = rotation
-        except (ValueError, TypeError):
-            raise ValidationError("Invalid rotation value")
         
         return validated
     

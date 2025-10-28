@@ -518,9 +518,55 @@
             line-height: 1.4;
         }
 
-        .instructions p {
-            margin: 4px 0;
-        }
+         .instructions p {
+             margin: 4px 0;
+         }
+         
+         /* Slider controls */
+         .slider-group {
+             margin-bottom: 15px;
+         }
+         
+         .slider-group label {
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             margin-bottom: 5px;
+             font-size: 12px;
+             color: #666;
+         }
+         
+         .slider-group input[type="range"] {
+             width: 100%;
+             height: 6px;
+             border-radius: 3px;
+             background: #ddd;
+             outline: none;
+             -webkit-appearance: none;
+             appearance: none;
+         }
+         
+         .slider-group input[type="range"]::-webkit-slider-thumb {
+             -webkit-appearance: none;
+             appearance: none;
+             width: 18px;
+             height: 18px;
+             border-radius: 50%;
+             background: #007bff;
+             cursor: pointer;
+             border: 2px solid white;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+         }
+         
+         .slider-group input[type="range"]::-moz-range-thumb {
+             width: 18px;
+             height: 18px;
+             border-radius: 50%;
+             background: #007bff;
+             cursor: pointer;
+             border: 2px solid white;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+         }
         
         /* Loading states */
         .loading {
@@ -649,78 +695,113 @@
                 </button>
             </div>
 
-            <!-- Visual Image Editor -->
-            <div class="card" id="imageEditor" style="display:none;">
-                <h3>Visual Image Editor</h3>
-                
-                <div class="editor-container">
-                    <div class="editor-preview">
-                        <div class="preview-frame">
-                            <canvas id="imageCanvas" width="250" height="122"></canvas>
-                            <div class="crop-overlay" id="cropOverlay">
-                                <div class="crop-handle crop-handle-nw" data-handle="nw"></div>
-                                <div class="crop-handle crop-handle-ne" data-handle="ne"></div>
-                                <div class="crop-handle crop-handle-sw" data-handle="sw"></div>
-                                <div class="crop-handle crop-handle-se" data-handle="se"></div>
-                                <div class="crop-handle crop-handle-n" data-handle="n"></div>
-                                <div class="crop-handle crop-handle-s" data-handle="s"></div>
-                                <div class="crop-handle crop-handle-w" data-handle="w"></div>
-                                <div class="crop-handle crop-handle-e" data-handle="e"></div>
-                            </div>
-                        </div>
-                        <div class="preview-info">
-                            <span id="cropInfo">Loading...</span>
-                        </div>
-                    </div>
-                    
-                    <div class="editor-controls">
-                        <div class="control-group">
-                            <label>Rotation</label>
-                            <div class="btn-group">
-                                <button class="btn" onclick="rotateImage(-90)">↺ -90°</button>
-                                <button class="btn" onclick="rotateImage(-45)">↺ -45°</button>
-                                <button class="btn" onclick="rotateImage(0)">0°</button>
-                                <button class="btn" onclick="rotateImage(45)">45° ↻</button>
-                                <button class="btn" onclick="rotateImage(90)">90° ↻</button>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Quick Actions</label>
-                            <div class="btn-group">
-                                <button class="btn" onclick="fitToScreen()">Fit Screen</button>
-                                <button class="btn" onclick="fillScreen()">Fill Screen</button>
-                                <button class="btn" onclick="centerCrop()">Center</button>
-                                <button class="btn" onclick="resetCrop()">Reset</button>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Settings Memory</label>
-                            <div class="btn-group">
-                                <button class="btn" onclick="saveCurrentSettings()">💾 Save Settings</button>
-                                <button class="btn" onclick="loadSavedSettings()">📁 Load Settings</button>
-                                <button class="btn" onclick="clearAllSettings()">🗑️ Clear All</button>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label>Instructions</label>
-                            <div class="instructions">
-                                <p>• Pinch to zoom in/out</p>
-                                <p>• Drag image to position</p>
-                                <p>• Drag blue handles to crop</p>
-                                <p>• Settings are saved automatically when you apply</p>
-                                <p>• Different image types (portrait/landscape) have separate settings</p>
-                            </div>
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button class="btn btn-primary" onclick="applyVisualEdit()">Apply to Display</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+             <!-- Visual Image Editor -->
+             <div class="card" id="imageEditor" style="display:none;">
+                 <h3>🎨 Visual Image Editor</h3>
+                 
+                 <div class="editor-container">
+                     <div class="editor-preview">
+                         <div class="preview-frame">
+                             <canvas id="imageCanvas" width="250" height="122"></canvas>
+                             <div class="crop-overlay" id="cropOverlay">
+                                 <div class="crop-handle crop-handle-nw" data-handle="nw"></div>
+                                 <div class="crop-handle crop-handle-ne" data-handle="ne"></div>
+                                 <div class="crop-handle crop-handle-sw" data-handle="sw"></div>
+                                 <div class="crop-handle crop-handle-se" data-handle="se"></div>
+                                 <div class="crop-handle crop-handle-n" data-handle="n"></div>
+                                 <div class="crop-handle crop-handle-s" data-handle="s"></div>
+                                 <div class="crop-handle crop-handle-w" data-handle="w"></div>
+                                 <div class="crop-handle crop-handle-e" data-handle="e"></div>
+                             </div>
+                         </div>
+                         <div class="preview-info">
+                             <span id="cropInfo">Loading...</span>
+                         </div>
+                     </div>
+                     
+                     <div class="editor-controls">
+                         <div class="control-group">
+                             <label>🔄 Rotation</label>
+                             <div class="btn-group">
+                                 <button class="btn" onclick="rotateImage(-90)">↺ -90°</button>
+                                 <button class="btn" onclick="rotateImage(-45)">↺ -45°</button>
+                                 <button class="btn" onclick="rotateImage(0)">0°</button>
+                                 <button class="btn" onclick="rotateImage(45)">45° ↻</button>
+                                 <button class="btn" onclick="rotateImage(90)">90° ↻</button>
+                             </div>
+                         </div>
+                         
+                         <div class="control-group">
+                             <label>📏 Zoom & Position</label>
+                             <div class="slider-group">
+                                 <label>Zoom: <span id="zoomValue">100%</span></label>
+                                 <input type="range" id="zoomSlider" min="10" max="500" value="100" oninput="updateZoom(this.value)">
+                             </div>
+                             <div class="slider-group">
+                                 <label>X Offset: <span id="offsetXValue">0</span></label>
+                                 <input type="range" id="offsetXSlider" min="-200" max="200" value="0" oninput="updateOffsetX(this.value)">
+                             </div>
+                             <div class="slider-group">
+                                 <label>Y Offset: <span id="offsetYValue">0</span></label>
+                                 <input type="range" id="offsetYSlider" min="-200" max="200" value="0" oninput="updateOffsetY(this.value)">
+                             </div>
+                         </div>
+                         
+                         <div class="control-group">
+                             <label>✂️ Crop Area</label>
+                             <div class="slider-group">
+                                 <label>Crop X: <span id="cropXValue">0</span></label>
+                                 <input type="range" id="cropXSlider" min="0" max="200" value="0" oninput="updateCropX(this.value)">
+                             </div>
+                             <div class="slider-group">
+                                 <label>Crop Y: <span id="cropYValue">0</span></label>
+                                 <input type="range" id="cropYSlider" min="0" max="100" value="0" oninput="updateCropY(this.value)">
+                             </div>
+                             <div class="slider-group">
+                                 <label>Crop Width: <span id="cropWValue">250</span></label>
+                                 <input type="range" id="cropWSlider" min="50" max="250" value="250" oninput="updateCropW(this.value)">
+                             </div>
+                             <div class="slider-group">
+                                 <label>Crop Height: <span id="cropHValue">122</span></label>
+                                 <input type="range" id="cropHSlider" min="50" max="122" value="122" oninput="updateCropH(this.value)">
+                             </div>
+                         </div>
+                         
+                         <div class="control-group">
+                             <label>⚡ Quick Actions</label>
+                             <div class="btn-group">
+                                 <button class="btn" onclick="fitToScreen()">📐 Fit Screen</button>
+                                 <button class="btn" onclick="fillScreen()">🖼️ Fill Screen</button>
+                                 <button class="btn" onclick="centerCrop()">🎯 Center</button>
+                                 <button class="btn" onclick="resetCrop()">🔄 Reset</button>
+                             </div>
+                         </div>
+                         
+                         <div class="control-group">
+                             <label>💾 Settings Memory</label>
+                             <div class="btn-group">
+                                 <button class="btn" onclick="saveCurrentSettings()">💾 Save Settings</button>
+                                 <button class="btn" onclick="loadSavedSettings()">📁 Load Settings</button>
+                                 <button class="btn" onclick="clearAllSettings()">🗑️ Clear All</button>
+                             </div>
+                         </div>
+                         
+                         <div class="control-group">
+                             <label>📱 Touch Controls</label>
+                             <div class="instructions">
+                                 <p>• <strong>Single finger:</strong> Drag to move image</p>
+                                 <p>• <strong>Two fingers:</strong> Pinch to zoom</p>
+                                 <p>• <strong>Drag handles:</strong> Resize crop area</p>
+                                 <p>• <strong>Preview shows:</strong> Exactly what will display</p>
+                             </div>
+                         </div>
+                         
+                         <div class="btn-group">
+                             <button class="btn btn-primary" onclick="applyVisualEdit()">🚀 Apply to Display</button>
+                         </div>
+                     </div>
+                 </div>
+             </div>
 
             <div class="info-box">
                 💡 Images are auto-converted to black & white for e-ink display. Use the visual editor to drag, zoom, and crop your image interactively.
@@ -874,27 +955,28 @@
             }
         });
 
-        let currentImageFile = null;
-        let originalImageData = null;
-        let imageEditor = {
-            canvas: null,
-            ctx: null,
-            image: null,
-            zoom: 1.0,
-            offsetX: 0,
-            offsetY: 0,
-            cropX: 0,
-            cropY: 0,
-            cropW: 250,
-            cropH: 122,
-            rotation: 90, // Default rotation for horizontal display
-            isDragging: false,
-            dragStart: { x: 0, y: 0 },
-            activeHandle: null,
-            lastTouchDistance: 0,
-            isPinching: false,
-            lastPinchCenter: { x: 0, y: 0 }
-        };
+         let currentImageFile = null;
+         let originalImageData = null;
+         let imageEditor = {
+             canvas: null,
+             ctx: null,
+             image: null,
+             zoom: 1.0,
+             offsetX: 0,
+             offsetY: 0,
+             cropX: 0,
+             cropY: 0,
+             cropW: 250,
+             cropH: 122,
+             rotation: 0,
+             isDragging: false,
+             dragStart: { x: 0, y: 0 },
+             activeHandle: null,
+             lastTouchDistance: 0,
+             isPinching: false,
+             lastPinchCenter: { x: 0, y: 0 },
+             isUpdatingSliders: false
+         };
 
         function handleFile(file) {
             if (!file.type.startsWith('image/')) {
@@ -951,44 +1033,47 @@
             });
         }
 
-        function initImageEditor(imageSrc) {
-            imageEditor.canvas = document.getElementById('imageCanvas');
-            imageEditor.ctx = imageEditor.canvas.getContext('2d');
-            
-            const img = new Image();
-            img.onload = function() {
-                imageEditor.image = img;
-                
-                // Load saved settings for this image type
-                loadImageSettings(img);
-                
-                drawImage();
-                setupEventListeners();
-            };
-            img.src = imageSrc;
-        }
+         function initImageEditor(imageSrc) {
+             imageEditor.canvas = document.getElementById('imageCanvas');
+             imageEditor.ctx = imageEditor.canvas.getContext('2d');
+             
+             const img = new Image();
+             img.onload = function() {
+                 imageEditor.image = img;
+                 
+                 // Load saved settings for this image type
+                 loadImageSettings(img);
+                 
+                 // Initialize sliders
+                 updateSlidersFromValues();
+                 
+                 drawImage();
+                 setupEventListeners();
+             };
+             img.src = imageSrc;
+         }
 
         function loadImageSettings(img) {
             // Check if we have saved settings for this image type
             const imageType = getImageType(img);
             const savedSettings = getSavedImageSettings(imageType);
             
-            if (savedSettings) {
-                imageEditor.zoom = savedSettings.zoom || 1.0;
-                imageEditor.offsetX = savedSettings.offsetX || 0;
-                imageEditor.offsetY = savedSettings.offsetY || 0;
-                imageEditor.cropX = savedSettings.cropX || 0;
-                imageEditor.cropY = savedSettings.cropY || 0;
-                imageEditor.cropW = savedSettings.cropW || 250;
-                imageEditor.cropH = savedSettings.cropH || 122;
-                imageEditor.rotation = savedSettings.rotation || 90; // Default to 90°
-                
-                // Apply smart fitting based on image orientation
-                applySmartFitting(img);
-            } else {
-                // Default smart fitting for new images
-                applySmartFitting(img);
-            }
+             if (savedSettings) {
+                 imageEditor.zoom = savedSettings.zoom || 1.0;
+                 imageEditor.offsetX = savedSettings.offsetX || 0;
+                 imageEditor.offsetY = savedSettings.offsetY || 0;
+                 imageEditor.cropX = savedSettings.cropX || 0;
+                 imageEditor.cropY = savedSettings.cropY || 0;
+                 imageEditor.cropW = savedSettings.cropW || 250;
+                 imageEditor.cropH = savedSettings.cropH || 122;
+                 imageEditor.rotation = savedSettings.rotation || 0;
+                 
+                 // Apply smart fitting based on image orientation
+                 applySmartFitting(img);
+             } else {
+                 // Default smart fitting for new images
+                 applySmartFitting(img);
+             }
         }
 
         function getImageType(img) {
@@ -1008,37 +1093,29 @@
             localStorage.setItem(`epaper_settings_${imageType}`, JSON.stringify(settings));
         }
 
-        function applySmartFitting(img) {
-            const aspectRatio = img.width / img.height;
-            const displayAspectRatio = 250 / 122;
-            
-            // Default rotation should be 90° for horizontal display
-            // This means we need to swap width/height for calculations
-            const rotatedWidth = img.height;
-            const rotatedHeight = img.width;
-            const rotatedAspectRatio = rotatedWidth / rotatedHeight;
-            
-            if (rotatedAspectRatio > displayAspectRatio) {
-                // Rotated image is wider than display - fit to height
-                imageEditor.zoom = 122 / rotatedHeight;
-                imageEditor.offsetX = (250 - rotatedWidth * imageEditor.zoom) / 2;
-                imageEditor.offsetY = 0;
-            } else {
-                // Rotated image is taller than display - fit to width
-                imageEditor.zoom = 250 / rotatedWidth;
-                imageEditor.offsetX = 0;
-                imageEditor.offsetY = (122 - rotatedHeight * imageEditor.zoom) / 2;
-            }
-            
-            // Set crop to full display
-            imageEditor.cropX = 0;
-            imageEditor.cropY = 0;
-            imageEditor.cropW = 250;
-            imageEditor.cropH = 122;
-            
-            // Set default rotation to 90° for horizontal display
-            imageEditor.rotation = 90;
-        }
+         function applySmartFitting(img) {
+             const aspectRatio = img.width / img.height;
+             const displayAspectRatio = 250 / 122;
+             
+             if (aspectRatio > displayAspectRatio) {
+                 // Image is wider than display - fit to height
+                 imageEditor.zoom = 122 / img.height;
+                 imageEditor.offsetX = 0;
+                 imageEditor.offsetY = 0;
+             } else {
+                 // Image is taller than display - fit to width
+                 imageEditor.zoom = 250 / img.width;
+                 imageEditor.offsetX = 0;
+                 imageEditor.offsetY = 0;
+             }
+             
+             // Set crop to full display
+             imageEditor.cropX = 0;
+             imageEditor.cropY = 0;
+             imageEditor.cropW = 250;
+             imageEditor.cropH = 122;
+             imageEditor.rotation = 0;
+         }
 
         function setupEventListeners() {
             const canvas = imageEditor.canvas;
@@ -1074,18 +1151,19 @@
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
-            if (imageEditor.activeHandle) {
-                resizeCrop(x, y);
-            } else {
-                // Pan the image
-                const deltaX = x - imageEditor.dragStart.x;
-                const deltaY = y - imageEditor.dragStart.y;
-                imageEditor.offsetX += deltaX;
-                imageEditor.offsetY += deltaY;
-                imageEditor.dragStart = { x, y };
-            }
-            
-            drawImage();
+             if (imageEditor.activeHandle) {
+                 resizeCrop(x, y);
+             } else {
+                 // Pan the image
+                 const deltaX = x - imageEditor.dragStart.x;
+                 const deltaY = y - imageEditor.dragStart.y;
+                 imageEditor.offsetX += deltaX;
+                 imageEditor.offsetY += deltaY;
+                 imageEditor.dragStart = { x, y };
+                 updateSlidersFromValues();
+             }
+             
+             drawImage();
         }
 
         function handleMouseUp(e) {
@@ -1093,12 +1171,13 @@
             imageEditor.activeHandle = null;
         }
 
-        function handleWheel(e) {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? -0.1 : 0.1;
-            imageEditor.zoom = Math.max(0.1, Math.min(5.0, imageEditor.zoom + delta));
-            drawImage();
-        }
+         function handleWheel(e) {
+             e.preventDefault();
+             const delta = e.deltaY > 0 ? -0.1 : 0.1;
+             imageEditor.zoom = Math.max(0.1, Math.min(5.0, imageEditor.zoom + delta));
+             updateSlidersFromValues();
+             drawImage();
+         }
 
         function getDistance(touch1, touch2) {
             const dx = touch1.clientX - touch2.clientX;
@@ -1148,16 +1227,17 @@
                 const x = touch.clientX - rect.left;
                 const y = touch.clientY - rect.top;
                 
-                if (imageEditor.activeHandle) {
-                    resizeCrop(x, y);
-                } else {
-                    const deltaX = x - imageEditor.dragStart.x;
-                    const deltaY = y - imageEditor.dragStart.y;
-                    imageEditor.offsetX += deltaX;
-                    imageEditor.offsetY += deltaY;
-                    imageEditor.dragStart = { x, y };
-                }
-                drawImage();
+                 if (imageEditor.activeHandle) {
+                     resizeCrop(x, y);
+                 } else {
+                     const deltaX = x - imageEditor.dragStart.x;
+                     const deltaY = y - imageEditor.dragStart.y;
+                     imageEditor.offsetX += deltaX;
+                     imageEditor.offsetY += deltaY;
+                     imageEditor.dragStart = { x, y };
+                     updateSlidersFromValues();
+                 }
+                 drawImage();
             } else if (touches.length === 2 && imageEditor.isPinching) {
                 // Pinch to zoom
                 const distance = getDistance(touches[0], touches[1]);
@@ -1177,6 +1257,7 @@
                     
                     imageEditor.zoom = newZoom;
                     imageEditor.lastTouchDistance = distance;
+                    updateSlidersFromValues();
                 }
                 drawImage();
             }
@@ -1246,56 +1327,136 @@
                     break;
             }
             
+            updateSlidersFromValues();
             updateCropOverlay();
         }
 
-        function drawImage() {
-            const ctx = imageEditor.ctx;
-            const canvas = imageEditor.canvas;
-            const img = imageEditor.image;
-            
-            if (!img) return;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Save the current context state
-            ctx.save();
-            
-            // Move to center of canvas
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            
-            // Apply rotation
-            ctx.rotate((imageEditor.rotation * Math.PI) / 180);
-            
-            // Calculate scaled dimensions
-            const scaledWidth = img.width * imageEditor.zoom;
-            const scaledHeight = img.height * imageEditor.zoom;
-            
-            // Draw the scaled image centered
-            ctx.drawImage(img, 
-                imageEditor.offsetX - scaledWidth / 2, 
-                imageEditor.offsetY - scaledHeight / 2, 
-                scaledWidth, scaledHeight
-            );
-            
-            // Restore the context state
-            ctx.restore();
-            
-            // Draw crop overlay
-            drawCropOverlay();
-            
-            // Update crop info
-            updateCropInfo();
-        }
+         function drawImage() {
+             const ctx = imageEditor.ctx;
+             const canvas = imageEditor.canvas;
+             const img = imageEditor.image;
+             
+             if (!img) return;
+             
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+             
+             // Save context state
+             ctx.save();
+             
+             // Apply rotation
+             ctx.translate(canvas.width / 2, canvas.height / 2);
+             ctx.rotate((imageEditor.rotation * Math.PI) / 180);
+             
+             // Calculate scaled dimensions
+             const scaledWidth = img.width * imageEditor.zoom;
+             const scaledHeight = img.height * imageEditor.zoom;
+             
+             // Draw the scaled image centered
+             ctx.drawImage(img, 
+                 imageEditor.offsetX - scaledWidth / 2, 
+                 imageEditor.offsetY - scaledHeight / 2, 
+                 scaledWidth, scaledHeight
+             );
+             
+             // Restore context state
+             ctx.restore();
+             
+             // Draw crop overlay
+             drawCropOverlay();
+             
+             // Update crop info
+             updateCropInfo();
+         }
 
-        function updateCropInfo() {
-            const info = document.getElementById('cropInfo');
-            if (info) {
-                const zoomPercent = Math.round(imageEditor.zoom * 100);
-                const cropInfo = `Zoom: ${zoomPercent}% • Rotation: ${imageEditor.rotation}° • Crop: ${imageEditor.cropW}×${imageEditor.cropH}px`;
-                info.textContent = cropInfo;
-            }
-        }
+         function updateCropInfo() {
+             const info = document.getElementById('cropInfo');
+             if (info) {
+                 const zoomPercent = Math.round(imageEditor.zoom * 100);
+                 const cropInfo = `Zoom: ${zoomPercent}% • Rotation: ${imageEditor.rotation}° • Crop: ${imageEditor.cropW}×${imageEditor.cropH}px`;
+                 info.textContent = cropInfo;
+             }
+         }
+
+         // Slider control functions
+         function updateSlidersFromValues() {
+             if (imageEditor.isUpdatingSliders) return;
+             
+             imageEditor.isUpdatingSliders = true;
+             
+             document.getElementById('zoomSlider').value = Math.round(imageEditor.zoom * 100);
+             document.getElementById('offsetXSlider').value = Math.round(imageEditor.offsetX);
+             document.getElementById('offsetYSlider').value = Math.round(imageEditor.offsetY);
+             document.getElementById('cropXSlider').value = Math.round(imageEditor.cropX);
+             document.getElementById('cropYSlider').value = Math.round(imageEditor.cropY);
+             document.getElementById('cropWSlider').value = Math.round(imageEditor.cropW);
+             document.getElementById('cropHSlider').value = Math.round(imageEditor.cropH);
+             
+             updateSliderLabels();
+             
+             imageEditor.isUpdatingSliders = false;
+         }
+
+         function updateSliderLabels() {
+             document.getElementById('zoomValue').textContent = Math.round(imageEditor.zoom * 100) + '%';
+             document.getElementById('offsetXValue').textContent = Math.round(imageEditor.offsetX);
+             document.getElementById('offsetYValue').textContent = Math.round(imageEditor.offsetY);
+             document.getElementById('cropXValue').textContent = Math.round(imageEditor.cropX);
+             document.getElementById('cropYValue').textContent = Math.round(imageEditor.cropY);
+             document.getElementById('cropWValue').textContent = Math.round(imageEditor.cropW);
+             document.getElementById('cropHValue').textContent = Math.round(imageEditor.cropH);
+         }
+
+         function updateZoom(value) {
+             imageEditor.zoom = value / 100;
+             updateSliderLabels();
+             drawImage();
+         }
+
+         function updateOffsetX(value) {
+             imageEditor.offsetX = parseInt(value);
+             updateSliderLabels();
+             drawImage();
+         }
+
+         function updateOffsetY(value) {
+             imageEditor.offsetY = parseInt(value);
+             updateSliderLabels();
+             drawImage();
+         }
+
+         function updateCropX(value) {
+             imageEditor.cropX = parseInt(value);
+             updateSliderLabels();
+             updateCropOverlay();
+             drawImage();
+         }
+
+         function updateCropY(value) {
+             imageEditor.cropY = parseInt(value);
+             updateSliderLabels();
+             updateCropOverlay();
+             drawImage();
+         }
+
+         function updateCropW(value) {
+             imageEditor.cropW = parseInt(value);
+             updateSliderLabels();
+             updateCropOverlay();
+             drawImage();
+         }
+
+         function updateCropH(value) {
+             imageEditor.cropH = parseInt(value);
+             updateSliderLabels();
+             updateCropOverlay();
+             drawImage();
+         }
+
+         function rotateImage(degrees) {
+             imageEditor.rotation = degrees;
+             drawImage();
+             showToast(`Rotated to ${degrees}°`, 'info');
+         }
 
         function drawCropOverlay() {
             const ctx = imageEditor.ctx;
@@ -1387,44 +1548,47 @@
         }
 
 
-        function fitToScreen() {
-            if (!imageEditor.image) return;
-            
-            applySmartFitting(imageEditor.image);
-            updateCropOverlay();
-            drawImage();
-        }
+         function fitToScreen() {
+             if (!imageEditor.image) return;
+             
+             applySmartFitting(imageEditor.image);
+             updateSlidersFromValues();
+             updateCropOverlay();
+             drawImage();
+         }
 
-        function fillScreen() {
-            if (!imageEditor.image) return;
-            
-            const aspectRatio = imageEditor.image.width / imageEditor.image.height;
-            const displayAspectRatio = 250 / 122;
-            
-            if (aspectRatio > displayAspectRatio) {
-                // Image is wider - fill width
-                imageEditor.zoom = 250 / imageEditor.image.width;
-                imageEditor.offsetX = 0;
-                imageEditor.offsetY = (122 - imageEditor.image.height * imageEditor.zoom) / 2;
-            } else {
-                // Image is taller - fill height
-                imageEditor.zoom = 122 / imageEditor.image.height;
-                imageEditor.offsetX = (250 - imageEditor.image.width * imageEditor.zoom) / 2;
-                imageEditor.offsetY = 0;
-            }
-            
-            imageEditor.cropX = 0;
-            imageEditor.cropY = 0;
-            imageEditor.cropW = 250;
-            imageEditor.cropH = 122;
-            
-            updateCropOverlay();
-            drawImage();
-        }
+         function fillScreen() {
+             if (!imageEditor.image) return;
+             
+             const aspectRatio = imageEditor.image.width / imageEditor.image.height;
+             const displayAspectRatio = 250 / 122;
+             
+             if (aspectRatio > displayAspectRatio) {
+                 // Image is wider - fill width
+                 imageEditor.zoom = 250 / imageEditor.image.width;
+                 imageEditor.offsetX = 0;
+                 imageEditor.offsetY = 0;
+             } else {
+                 // Image is taller - fill height
+                 imageEditor.zoom = 122 / imageEditor.image.height;
+                 imageEditor.offsetX = 0;
+                 imageEditor.offsetY = 0;
+             }
+             
+             imageEditor.cropX = 0;
+             imageEditor.cropY = 0;
+             imageEditor.cropW = 250;
+             imageEditor.cropH = 122;
+             
+             updateSlidersFromValues();
+             updateCropOverlay();
+             drawImage();
+         }
 
         function centerCrop() {
             imageEditor.cropX = (250 - imageEditor.cropW) / 2;
             imageEditor.cropY = (122 - imageEditor.cropH) / 2;
+            updateSlidersFromValues();
             updateCropOverlay();
             drawImage();
         }
@@ -1437,16 +1601,11 @@
             imageEditor.cropY = 0;
             imageEditor.cropW = 250;
             imageEditor.cropH = 122;
-            imageEditor.rotation = 90; // Reset to default horizontal rotation
+            imageEditor.rotation = 0;
             
+            updateSlidersFromValues();
             updateCropOverlay();
             drawImage();
-        }
-
-        function rotateImage(degrees) {
-            imageEditor.rotation = degrees;
-            drawImage();
-            showToast(`Rotated to ${degrees}°`, 'info');
         }
 
         function saveCurrentSettings() {
@@ -1474,22 +1633,23 @@
             const imageType = getImageType(imageEditor.image);
             const savedSettings = getSavedImageSettings(imageType);
             
-            if (savedSettings) {
-                imageEditor.zoom = savedSettings.zoom;
-                imageEditor.offsetX = savedSettings.offsetX;
-                imageEditor.offsetY = savedSettings.offsetY;
-                imageEditor.cropX = savedSettings.cropX;
-                imageEditor.cropY = savedSettings.cropY;
-                imageEditor.cropW = savedSettings.cropW;
-                imageEditor.cropH = savedSettings.cropH;
-                imageEditor.rotation = savedSettings.rotation || 90;
-                
-                updateCropOverlay();
-                drawImage();
-                showToast('Saved settings loaded!', 'success');
-            } else {
-                showToast('No saved settings found for this image type', 'info');
-            }
+             if (savedSettings) {
+                 imageEditor.zoom = savedSettings.zoom;
+                 imageEditor.offsetX = savedSettings.offsetX;
+                 imageEditor.offsetY = savedSettings.offsetY;
+                 imageEditor.cropX = savedSettings.cropX;
+                 imageEditor.cropY = savedSettings.cropY;
+                 imageEditor.cropW = savedSettings.cropW;
+                 imageEditor.cropH = savedSettings.cropH;
+                 imageEditor.rotation = savedSettings.rotation || 0;
+                 
+                 updateSlidersFromValues();
+                 updateCropOverlay();
+                 drawImage();
+                 showToast('Saved settings loaded!', 'success');
+             } else {
+                 showToast('No saved settings found for this image type', 'info');
+             }
         }
 
         function clearAllSettings() {
