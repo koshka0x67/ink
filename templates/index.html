@@ -669,7 +669,7 @@
                             </div>
                         </div>
                         <div class="preview-info">
-                            <span id="cropInfo">Pinch to zoom • Drag to position • Drag handles to crop</span>
+                            <span id="cropInfo">Loading...</span>
                         </div>
                     </div>
                     
@@ -685,11 +685,22 @@
                         </div>
                         
                         <div class="control-group">
+                            <label>Settings Memory</label>
+                            <div class="btn-group">
+                                <button class="btn" onclick="saveCurrentSettings()">💾 Save Settings</button>
+                                <button class="btn" onclick="loadSavedSettings()">📁 Load Settings</button>
+                                <button class="btn" onclick="clearAllSettings()">🗑️ Clear All</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
                             <label>Instructions</label>
                             <div class="instructions">
                                 <p>• Pinch to zoom in/out</p>
                                 <p>• Drag image to position</p>
                                 <p>• Drag blue handles to crop</p>
+                                <p>• Settings are saved automatically when you apply</p>
+                                <p>• Different image types (portrait/landscape) have separate settings</p>
                             </div>
                         </div>
                         
@@ -935,18 +946,76 @@
             const img = new Image();
             img.onload = function() {
                 imageEditor.image = img;
-                imageEditor.zoom = 1.0;
-                imageEditor.offsetX = 0;
-                imageEditor.offsetY = 0;
-                imageEditor.cropW = 250;
-                imageEditor.cropH = 122;
-                imageEditor.cropX = 0;
-                imageEditor.cropY = 0;
+                
+                // Load saved settings for this image type
+                loadImageSettings(img);
                 
                 drawImage();
                 setupEventListeners();
             };
             img.src = imageSrc;
+        }
+
+        function loadImageSettings(img) {
+            // Check if we have saved settings for this image type
+            const imageType = getImageType(img);
+            const savedSettings = getSavedImageSettings(imageType);
+            
+            if (savedSettings) {
+                imageEditor.zoom = savedSettings.zoom || 1.0;
+                imageEditor.offsetX = savedSettings.offsetX || 0;
+                imageEditor.offsetY = savedSettings.offsetY || 0;
+                imageEditor.cropX = savedSettings.cropX || 0;
+                imageEditor.cropY = savedSettings.cropY || 0;
+                imageEditor.cropW = savedSettings.cropW || 250;
+                imageEditor.cropH = savedSettings.cropH || 122;
+                
+                // Apply smart fitting based on image orientation
+                applySmartFitting(img);
+            } else {
+                // Default smart fitting for new images
+                applySmartFitting(img);
+            }
+        }
+
+        function getImageType(img) {
+            // Determine image type based on dimensions
+            const aspectRatio = img.width / img.height;
+            if (aspectRatio > 1.5) return 'landscape';
+            if (aspectRatio < 0.7) return 'portrait';
+            return 'square';
+        }
+
+        function getSavedImageSettings(imageType) {
+            const settings = localStorage.getItem(`epaper_settings_${imageType}`);
+            return settings ? JSON.parse(settings) : null;
+        }
+
+        function saveImageSettings(imageType, settings) {
+            localStorage.setItem(`epaper_settings_${imageType}`, JSON.stringify(settings));
+        }
+
+        function applySmartFitting(img) {
+            const aspectRatio = img.width / img.height;
+            const displayAspectRatio = 250 / 122;
+            
+            if (aspectRatio > displayAspectRatio) {
+                // Image is wider than display - fit to height
+                imageEditor.zoom = 122 / img.height;
+                imageEditor.offsetX = (250 - img.width * imageEditor.zoom) / 2;
+                imageEditor.offsetY = 0;
+            } else {
+                // Image is taller than display - fit to width
+                imageEditor.zoom = 250 / img.width;
+                imageEditor.offsetX = 0;
+                imageEditor.offsetY = (122 - img.height * imageEditor.zoom) / 2;
+            }
+            
+            // Set crop to full display
+            imageEditor.cropX = 0;
+            imageEditor.cropY = 0;
+            imageEditor.cropW = 250;
+            imageEditor.cropH = 122;
         }
 
         function setupEventListeners() {
@@ -1179,6 +1248,18 @@
             
             // Draw crop overlay
             drawCropOverlay();
+            
+            // Update crop info
+            updateCropInfo();
+        }
+
+        function updateCropInfo() {
+            const info = document.getElementById('cropInfo');
+            if (info) {
+                const zoomPercent = Math.round(imageEditor.zoom * 100);
+                const cropInfo = `Zoom: ${zoomPercent}% • Crop: ${imageEditor.cropW}×${imageEditor.cropH}px`;
+                info.textContent = cropInfo;
+            }
         }
 
         function drawCropOverlay() {
@@ -1274,18 +1355,7 @@
         function fitToScreen() {
             if (!imageEditor.image) return;
             
-            const scaleX = 250 / imageEditor.image.width;
-            const scaleY = 122 / imageEditor.image.height;
-            imageEditor.zoom = Math.min(scaleX, scaleY);
-            
-            imageEditor.offsetX = (250 - imageEditor.image.width * imageEditor.zoom) / 2;
-            imageEditor.offsetY = (122 - imageEditor.image.height * imageEditor.zoom) / 2;
-            
-            imageEditor.cropX = 0;
-            imageEditor.cropY = 0;
-            imageEditor.cropW = 250;
-            imageEditor.cropH = 122;
-            
+            applySmartFitting(imageEditor.image);
             updateCropOverlay();
             drawImage();
         }
@@ -1293,12 +1363,20 @@
         function fillScreen() {
             if (!imageEditor.image) return;
             
-            const scaleX = 250 / imageEditor.image.width;
-            const scaleY = 122 / imageEditor.image.height;
-            imageEditor.zoom = Math.max(scaleX, scaleY);
+            const aspectRatio = imageEditor.image.width / imageEditor.image.height;
+            const displayAspectRatio = 250 / 122;
             
-            imageEditor.offsetX = (250 - imageEditor.image.width * imageEditor.zoom) / 2;
-            imageEditor.offsetY = (122 - imageEditor.image.height * imageEditor.zoom) / 2;
+            if (aspectRatio > displayAspectRatio) {
+                // Image is wider - fill width
+                imageEditor.zoom = 250 / imageEditor.image.width;
+                imageEditor.offsetX = 0;
+                imageEditor.offsetY = (122 - imageEditor.image.height * imageEditor.zoom) / 2;
+            } else {
+                // Image is taller - fill height
+                imageEditor.zoom = 122 / imageEditor.image.height;
+                imageEditor.offsetX = (250 - imageEditor.image.width * imageEditor.zoom) / 2;
+                imageEditor.offsetY = 0;
+            }
             
             imageEditor.cropX = 0;
             imageEditor.cropY = 0;
@@ -1329,11 +1407,74 @@
             drawImage();
         }
 
+        function saveCurrentSettings() {
+            if (!imageEditor.image) return;
+            
+            const imageType = getImageType(imageEditor.image);
+            const settings = {
+                zoom: imageEditor.zoom,
+                offsetX: imageEditor.offsetX,
+                offsetY: imageEditor.offsetY,
+                cropX: imageEditor.cropX,
+                cropY: imageEditor.cropY,
+                cropW: imageEditor.cropW,
+                cropH: imageEditor.cropH
+            };
+            
+            saveImageSettings(imageType, settings);
+            showToast('Settings saved for this image type!', 'success');
+        }
+
+        function loadSavedSettings() {
+            if (!imageEditor.image) return;
+            
+            const imageType = getImageType(imageEditor.image);
+            const savedSettings = getSavedImageSettings(imageType);
+            
+            if (savedSettings) {
+                imageEditor.zoom = savedSettings.zoom;
+                imageEditor.offsetX = savedSettings.offsetX;
+                imageEditor.offsetY = savedSettings.offsetY;
+                imageEditor.cropX = savedSettings.cropX;
+                imageEditor.cropY = savedSettings.cropY;
+                imageEditor.cropW = savedSettings.cropW;
+                imageEditor.cropH = savedSettings.cropH;
+                
+                updateCropOverlay();
+                drawImage();
+                showToast('Saved settings loaded!', 'success');
+            } else {
+                showToast('No saved settings found for this image type', 'info');
+            }
+        }
+
+        function clearAllSettings() {
+            if (confirm('Clear all saved settings for all image types?')) {
+                localStorage.removeItem('epaper_settings_landscape');
+                localStorage.removeItem('epaper_settings_portrait');
+                localStorage.removeItem('epaper_settings_square');
+                showToast('All settings cleared!', 'success');
+            }
+        }
+
         function applyVisualEdit() {
             if (!currentImageFile) {
-                showStatus('No image to apply', 'error');
+                showToast('No image to apply', 'error');
                 return;
             }
+
+            // Save current settings for this image type
+            const imageType = getImageType(imageEditor.image);
+            const settings = {
+                zoom: imageEditor.zoom,
+                offsetX: imageEditor.offsetX,
+                offsetY: imageEditor.offsetY,
+                cropX: imageEditor.cropX,
+                cropY: imageEditor.cropY,
+                cropW: imageEditor.cropW,
+                cropH: imageEditor.cropH
+            };
+            saveImageSettings(imageType, settings);
 
             const formData = new FormData();
             formData.append('image', currentImageFile);
@@ -1344,6 +1485,11 @@
             formData.append('crop_h', imageEditor.cropH);
 
             showStatus('Applying changes...', 'success');
+            showToast('Applying changes to display...', 'info');
+
+            // Add loading state to apply button
+            const applyBtn = document.querySelector('button[onclick="applyVisualEdit()"]');
+            setLoading(applyBtn, true);
 
             fetch('/upload', {
                 method: 'POST',
@@ -1353,13 +1499,19 @@
             .then(data => {
                 if (data.success) {
                     showStatus('✓ Changes applied to display!', 'success');
+                    showToast('Image applied successfully!', 'success');
                     loadPreview();
                 } else {
                     showStatus('✗ Apply failed: ' + data.error, 'error');
+                    showToast('Apply failed: ' + data.error, 'error');
                 }
             })
             .catch(error => {
                 showStatus('✗ Apply failed: ' + error, 'error');
+                showToast('Apply failed: ' + error, 'error');
+            })
+            .finally(() => {
+                setLoading(applyBtn, false);
             });
         }
 
