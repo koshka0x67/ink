@@ -1,0 +1,20 @@
+[Unit]
+Description=E-Paper Display Web Interface
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/epaper-display
+Environment=PYTHONPATH=/home/pi/epaper-display
+Environment=EPAPER_LOG_FILE=/var/log/epaper-display.log
+Environment=EPAPER_CURRENT_IMAGE=/tmp/current_epaper.bmp
+Environment=EPAPER_CURRENT_IMAGE_BASE=/tmp/current_epaper_base.bmp
+Environment=EPAPER_SETTINGS_PATH=/tmp/epaper_settings.json
+Environment=EPAPER_DASHBOARD_PREVIEW=/tmp/dashboard_preview.bmp
+ExecStart=/usr/bin/python3 /home/pi/epaper-display/start.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

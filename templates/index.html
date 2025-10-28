@@ -245,6 +245,12 @@
             font-size: 0.875rem;
             font-weight: 600;
             backdrop-filter: blur(10px);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .status.success {
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
@@ -514,6 +520,80 @@
 
         .instructions p {
             margin: 4px 0;
+        }
+        
+        /* Loading states */
+        .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #a78bfa;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #60a5fa);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(17, 17, 17, 0.95);
+            color: #e5e5e5;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            border-color: rgba(34, 197, 94, 0.3);
+            background: rgba(17, 17, 17, 0.95);
+        }
+        
+        .toast.error {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(17, 17, 17, 0.95);
         }
 
         @media (max-width: 640px) {
@@ -795,7 +875,7 @@
 
         function handleFile(file) {
             if (!file.type.startsWith('image/')) {
-                showStatus('Please upload an image file', 'error');
+                showToast('Please upload an image file', 'error');
                 return;
             }
 
@@ -804,6 +884,11 @@
             formData.append('image', file);
 
             showStatus('Uploading...', 'success');
+            showToast('Uploading image...', 'info');
+
+            // Add loading state to upload button
+            const uploadBtn = document.querySelector('button[onclick*="fileInput"]');
+            setLoading(uploadBtn, true);
 
             fetch('/upload', {
                 method: 'POST',
@@ -813,6 +898,7 @@
             .then(data => {
                 if (data.success) {
                     showStatus('✓ Image displayed successfully!', 'success');
+                    showToast('Image uploaded and displayed!', 'success');
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         preview.src = e.target.result;
@@ -830,10 +916,15 @@
                     reader.readAsDataURL(file);
                 } else {
                     showStatus('✗ Error: ' + data.error, 'error');
+                    showToast('Upload failed: ' + data.error, 'error');
                 }
             })
             .catch(error => {
                 showStatus('✗ Upload failed: ' + error, 'error');
+                showToast('Upload failed: ' + error, 'error');
+            })
+            .finally(() => {
+                setLoading(uploadBtn, false);
             });
         }
 
@@ -1341,6 +1432,32 @@
             setTimeout(() => {
                 status.className = 'status';
             }, 5000);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remove after delay
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function setLoading(element, loading = true) {
+            if (loading) {
+                element.classList.add('loading');
+                element.disabled = true;
+            } else {
+                element.classList.remove('loading');
+                element.disabled = false;
+            }
         }
 
         function loadSettings() {
