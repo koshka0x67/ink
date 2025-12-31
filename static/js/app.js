@@ -325,6 +325,8 @@ function loadDashboardSettings() {
         .then(s => {
             if (s.city) document.getElementById('dashCity').value = s.city;
             if (s.units) document.getElementById('dashUnits').value = s.units;
+            if (s.rotation !== undefined) document.getElementById('dashRotation').value = s.rotation;
+
             document.getElementById('dashHum').checked = !!s.show_humidity;
             document.getElementById('dashWind').checked = !!s.show_wind;
             document.getElementById('dashSun').checked = !!s.show_sun;
@@ -336,10 +338,10 @@ function updateDashboard() {
         mode: 'dashboard',
         city: document.getElementById('dashCity').value,
         units: document.getElementById('dashUnits').value,
+        rotation: parseInt(document.getElementById('dashRotation').value),
         show_humidity: document.getElementById('dashHum').checked,
         show_wind: document.getElementById('dashWind').checked,
-        show_sun: document.getElementById('dashSun').checked,
-        rotation: 0 // Reset rotation for dashboard as it handles its own layout
+        show_sun: document.getElementById('dashSun').checked
     };
 
     showStatus('Rendering Dashboard...', 'info');
