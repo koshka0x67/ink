@@ -10,13 +10,11 @@ const STATE = {
     x: 0,
     y: 0,
     rotation: 0,
-    brightness: 1.0,
-    contrast: 1.0,
     isDragging: false,
     lastX: 0,
     lastY: 0,
-    lastDist: 0,
     pointers: new Map(), // Track active pointers for multi-touch
+    lastPinchDist: 0,
     canvas: null,
     ctx: null,
     width: 250,
@@ -26,10 +24,28 @@ const STATE = {
 document.addEventListener('DOMContentLoaded', () => {
     initCanvas();
     initUpload();
-    initControls();
     loadStatus();
+    loadDashboardSettings();
 });
 
+/* --- View Management --- */
+function switchView(viewId) {
+    // Buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.innerText.toLowerCase().includes(viewId)) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+
+    // Views
+    document.querySelectorAll('.view-section').forEach(view => {
+        view.classList.remove('active');
+    });
+    document.getElementById('view-' + viewId).classList.add('active');
+
+    if (viewId === 'gallery') loadGallery();
+}
+
+/* --- Canvas / Editor Logic --- */
 function initCanvas() {
     STATE.canvas = document.getElementById('editorCanvas');
     STATE.ctx = STATE.canvas.getContext('2d', { alpha: false });
@@ -74,10 +90,6 @@ function initUpload() {
     });
 }
 
-function initControls() {
-    // Buttons will be bound in HTML by onclick, or we can bind here
-}
-
 function handleFile(file) {
     if (!file.type.startsWith('image/')) return showStatus('Not an image', 'error');
 
@@ -89,6 +101,7 @@ function handleFile(file) {
             STATE.file = file;
             resetView();
             document.getElementById('uploadPrompt').classList.add('hidden');
+            switchView('editor');
         };
         img.src = e.target.result;
     };
@@ -110,7 +123,6 @@ function resetView() {
     render();
 }
 
-/* Rendering Loop */
 function render() {
     if (!STATE.ctx) return;
     const ctx = STATE.ctx;
@@ -123,16 +135,10 @@ function render() {
 
     ctx.save();
 
-    // 1. Translate to center of canvas
+    // 1. Translate to center, 2. Pan, 3. Rotate, 4. Zoom
     ctx.translate(STATE.width / 2, STATE.height / 2);
-
-    // 2. Apply User Offset (Pan)
     ctx.translate(STATE.x, STATE.y);
-
-    // 3. Apply Rotation (Content Rotation)
     ctx.rotate(STATE.rotation * Math.PI / 180);
-
-    // 4. Apply Scale (Zoom)
     ctx.scale(STATE.scale, STATE.scale);
 
     // 5. Draw Image Centered
@@ -152,8 +158,7 @@ function handlePointerDown(e) {
     STATE.isDragging = true;
 
     if (STATE.pointers.size === 2) {
-        // Start Pinch
-        STATE.lastDist = getPinchDist();
+        STATE.lastPinchDist = getPinchDist();
     }
 }
 
@@ -167,9 +172,7 @@ function handlePointerMove(e) {
         const dx = e.clientX - ptr.x;
         const dy = e.clientY - ptr.y;
 
-        // Adjust for rotation? No, user drags screen.
-        // If I drag right on screen, image moves right on screen.
-        STATE.x += dx; // Screen space translation
+        STATE.x += dx;
         STATE.y += dy;
 
         STATE.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -178,11 +181,11 @@ function handlePointerMove(e) {
         // Pinch
         STATE.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
         const newDist = getPinchDist();
-        const delta = newDist - STATE.lastDist;
+        const delta = newDist - STATE.lastPinchDist;
 
-        // Zoom
+        // Zoom sensitivity
         STATE.scale *= (1 + delta * 0.005);
-        STATE.lastDist = newDist;
+        STATE.lastPinchDist = newDist;
         render();
     }
 }
@@ -221,7 +224,7 @@ function clearDisplay() {
 }
 
 async function uploadImage() {
-    if (!STATE.image || !STATE.file) return showStatus('No image selected', 'error');
+    if (!STATE.image || !STATE.file) return showStatus('No image loaded', 'error');
 
     const btn = document.getElementById('btnUpload');
     const originalText = btn.innerHTML;
@@ -231,30 +234,18 @@ async function uploadImage() {
     try {
         const formData = new FormData();
         formData.append('image', STATE.file);
-
-        // Pass Transform Parameters
-        // Note: The Backend needs to replicate the Canvas render logic
         formData.append('scale', STATE.scale);
         formData.append('offset_x', STATE.x);
         formData.append('offset_y', STATE.y);
-        formData.append('rotation', STATE.rotation); // Content rotation
+        formData.append('rotation', STATE.rotation);
 
-        // Use legacy crop params to bypass validation or set defaults
-        formData.append('crop_x', 0);
-        formData.append('crop_y', 0);
-        formData.append('crop_w', STATE.width);
-        formData.append('crop_h', STATE.height);
-
-        const res = await fetch('/upload', {
-            method: 'POST',
-            body: formData
-        });
-
+        const res = await fetch('/upload', { method: 'POST', body: formData });
         const data = await res.json();
+
         if (data.success) {
             showStatus('Updated Successfully', 'success');
         } else {
-            showStatus('Update Failed: ' + data.error, 'error');
+            showStatus('Failed: ' + data.error, 'error');
         }
     } catch (e) {
         showStatus('Error: ' + e.message, 'error');
@@ -264,7 +255,110 @@ async function uploadImage() {
     }
 }
 
-/* UI Helpers */
+/* --- Gallery Logic --- */
+function loadGallery() {
+    const grid = document.getElementById('galleryGrid');
+    grid.innerHTML = '<div class="empty-state">Loading...</div>';
+
+    fetch('/gallery')
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success || !data.images?.length) {
+                grid.innerHTML = '<div class="empty-state">No images found</div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            data.images.forEach(img => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.onclick = () => loadGalleryImage(img.name);
+                item.innerHTML = `
+                    <img class="gallery-thumb" src="/gallery/image/${img.name}" loading="lazy">
+                    <div class="gallery-info">
+                        <span class="gallery-name">${img.name}</span>
+                        <div class="gallery-delete" onclick="event.stopPropagation(); deleteImage('${img.name}')">🗑️</div>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        });
+}
+
+function loadGalleryImage(filename) {
+    showStatus('Loading image...', 'info');
+    fetch(`/gallery/image/${filename}`)
+        .then(res => res.blob())
+        .then(blob => {
+            const file = new File([blob], filename, { type: blob.type });
+            handleFile(file);
+        });
+}
+
+function uploadToGallery(input) {
+    if (!input.files.length) return;
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+
+    fetch('/gallery/upload', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) loadGallery();
+            else showStatus('Upload failed: ' + d.error, 'error');
+        });
+    input.value = '';
+}
+
+function deleteImage(filename) {
+    if (!confirm('Delete this image?')) return;
+    fetch(`/gallery/delete/${filename}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) loadGallery();
+        });
+}
+
+/* --- Dashboard Logic --- */
+function loadDashboardSettings() {
+    fetch('/settings')
+        .then(r => r.json())
+        .then(s => {
+            if (s.city) document.getElementById('dashCity').value = s.city;
+            if (s.units) document.getElementById('dashUnits').value = s.units;
+            document.getElementById('dashHum').checked = !!s.show_humidity;
+            document.getElementById('dashWind').checked = !!s.show_wind;
+            document.getElementById('dashSun').checked = !!s.show_sun;
+        });
+}
+
+function updateDashboard() {
+    const payload = {
+        mode: 'dashboard',
+        city: document.getElementById('dashCity').value,
+        units: document.getElementById('dashUnits').value,
+        show_humidity: document.getElementById('dashHum').checked,
+        show_wind: document.getElementById('dashWind').checked,
+        show_sun: document.getElementById('dashSun').checked,
+        rotation: 0 // Reset rotation for dashboard as it handles its own layout
+    };
+
+    showStatus('Rendering Dashboard...', 'info');
+
+    // Save settings first
+    fetch('/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+        .then(() => fetch('/render_dashboard', { method: 'POST' }))
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) showStatus('Dashboard Updated', 'success');
+            else showStatus('Render Failed: ' + d.error, 'error');
+        });
+}
+
+/* Helpers */
 function showStatus(msg, type = 'info') {
     const el = document.getElementById('statusBar');
     el.textContent = msg;
@@ -274,9 +368,5 @@ function showStatus(msg, type = 'info') {
 }
 
 function loadStatus() {
-    fetch('/settings').then(r => r.json()).then(() => {
-        showStatus('Connected');
-    }).catch(() => {
-        showStatus('Offline', 'error');
-    });
+    fetch('/settings').then(() => showStatus('Connected')).catch(() => showStatus('Offline', 'error'));
 }
