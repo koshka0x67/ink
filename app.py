@@ -355,6 +355,78 @@ def auto_route():
         logger.error(f"Auto route error: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+# Gallery Routes
+@app.route('/gallery', methods=['GET'])
+def gallery_list():
+    """List images in gallery"""
+    try:
+        images = display_manager.get_gallery_images()
+        return jsonify({'success': True, 'images': images})
+    except Exception as e:
+        logger.error(f"Gallery list error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/gallery/upload', methods=['POST'])
+def gallery_upload():
+    """Upload image to gallery"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({'success': False, 'error': 'No image provided'})
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No image selected'})
+            
+        success = display_manager.save_to_gallery(file, file.filename)
+        return jsonify({'success': success})
+    except Exception as e:
+        logger.error(f"Gallery upload error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/gallery/image/<filename>')
+def gallery_serve_image(filename):
+    """Serve specific gallery image"""
+    try:
+        path = display_manager.get_gallery_image_path(filename)
+        if path:
+            return send_file(path)
+        return "Image not found", 404
+    except Exception as e:
+        logger.error(f"Gallery serve error: {e}")
+        return f"Error: {e}", 500
+
+@app.route('/gallery/delete/<filename>', methods=['POST', 'DELETE'])
+def gallery_delete(filename):
+    """Delete image from gallery"""
+    try:
+        success = display_manager.delete_gallery_image(filename)
+        return jsonify({'success': success})
+    except Exception as e:
+        logger.error(f"Gallery delete error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/gallery/display/<filename>', methods=['POST'])
+def gallery_display(filename):
+    """Display an image from gallery"""
+    try:
+        path = display_manager.get_gallery_image_path(filename)
+        if not path:
+            return jsonify({'success': False, 'error': 'Image not found'})
+            
+        # Process image similar to direct upload but from local path
+        # Use default settings or optional query params for processing if needed
+        # For now, we'll process with defaults to fit screen
+        img = display_manager.process_image(path)
+        success = display_manager.display_image(img, settings)
+        
+        if success:
+            save_preview(img)
+            
+        return jsonify({'success': success})
+    except Exception as e:
+        logger.error(f"Gallery display error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 if __name__ == '__main__':
     logger.info("Starting E-Paper Display Web Interface...")
     logger.info("Access at http://raspberrypi.local:5000")

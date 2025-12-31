@@ -189,3 +189,62 @@ class DisplayManager:
     def get_rotation(self) -> int:
         """Get the current rotation degrees"""
         return self.rotation_degrees
+
+    def save_to_gallery(self, file_storage, filename: str) -> bool:
+        """Save an uploaded file to the gallery"""
+        try:
+            if not os.path.exists(Config.GALLERY_PATH):
+                os.makedirs(Config.GALLERY_PATH)
+            
+            # Secure filename (basic check)
+            filename = os.path.basename(filename)
+            file_path = os.path.join(Config.GALLERY_PATH, filename)
+            
+            # Save original
+            file_storage.save(file_path)
+            return True
+        except Exception as e:
+            logger.error(f"Error saving to gallery: {e}")
+            return False
+
+    def get_gallery_images(self) -> list:
+        """Get list of images in gallery"""
+        images = []
+        if not os.path.exists(Config.GALLERY_PATH):
+            return images
+            
+        try:
+            for filename in os.listdir(Config.GALLERY_PATH):
+                if any(filename.lower().endswith(ext) for ext in Config.ALLOWED_EXTENSIONS):
+                    file_path = os.path.join(Config.GALLERY_PATH, filename)
+                    stat = os.stat(file_path)
+                    images.append({
+                        'name': filename,
+                        'size': stat.st_size,
+                        'modified': stat.st_mtime
+                    })
+            # Sort by modified time (newest first)
+            images.sort(key=lambda x: x['modified'], reverse=True)
+            return images
+        except Exception as e:
+            logger.error(f"Error listing gallery: {e}")
+            return []
+
+    def delete_gallery_image(self, filename: str) -> bool:
+        """Delete an image from the gallery"""
+        try:
+            file_path = os.path.join(Config.GALLERY_PATH, os.path.basename(filename))
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Error deleting from gallery: {e}")
+            return False
+
+    def get_gallery_image_path(self, filename: str) -> Optional[str]:
+        """Get full path to a gallery image if it exists"""
+        file_path = os.path.join(Config.GALLERY_PATH, os.path.basename(filename))
+        if os.path.exists(file_path):
+            return file_path
+        return None

@@ -20,6 +20,7 @@ class Config:
     SETTINGS_PATH = os.getenv('EPAPER_SETTINGS_PATH', '/tmp/epaper_settings.json')
     LAST_DASHBOARD_PREVIEW = os.getenv('EPAPER_DASHBOARD_PREVIEW', '/tmp/dashboard_preview.bmp')
     LOG_FILE = os.getenv('EPAPER_LOG_FILE', '/tmp/epaper_display.log')
+    GALLERY_PATH = os.getenv('EPAPER_GALLERY_PATH', os.path.join(os.getcwd(), 'static', 'gallery'))
     
     # E-Paper library path
     EPD_PATH = os.getenv('EPAPER_LIB_PATH', '/home/pi/e-Paper/RaspberryPi_JetsonNano/python/lib')
