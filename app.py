@@ -141,6 +141,13 @@ def upload():
             crop_h=validated_data['crop_h']
         )
         
+        )
+        
+        # Switch to image mode
+        if settings.get('mode') != 'image':
+            settings['mode'] = 'image'
+            Config.save_settings(settings)
+
         success = display_manager.display_image(img, settings)
         
         if success:
@@ -417,6 +424,12 @@ def gallery_display(filename):
         # Use default settings or optional query params for processing if needed
         # For now, we'll process with defaults to fit screen
         img = display_manager.process_image(path)
+        
+        # Switch to image mode
+        if settings.get('mode') != 'image':
+            settings['mode'] = 'image'
+            Config.save_settings(settings)
+            
         success = display_manager.display_image(img, settings)
         
         if success:

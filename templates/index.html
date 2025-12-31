@@ -2095,7 +2095,7 @@
         }
 
         function loadPreview() {
-            fetch('/preview')
+            fetch('/preview?t=' + Date.now())
                 .then(response => response.blob())
                 .then(blob => {
                     const url = URL.createObjectURL(blob);
@@ -2134,7 +2134,7 @@
                             </div>
                             <div style="font-size: 0.75rem; color: #aaa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${img.name}</div>
                             <div style="display: flex; gap: 0.25rem; margin-top: 0.5rem;">
-                                <button class="btn btn-primary" style="flex: 1; min-width: 0; padding: 0.25rem; font-size: 0.75rem;" onclick="displayGalleryImage('${img.name}')">Show</button>
+                                <button class="btn btn-primary" style="flex: 1; min-width: 0; padding: 0.25rem; font-size: 0.75rem;" onclick="loadGalleryImageToEditor('${img.name}')">Edit</button>
                                 <button class="btn" style="flex: 0; min-width: 0; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #ef4444;" onclick="deleteGalleryImage('${img.name}')">🗑️</button>
                             </div>
                         `;
@@ -2148,6 +2148,20 @@
                     console.error(e);
                     grid.innerHTML = '<p class="placeholder" style="grid-column: 1/-1;">Error loading gallery</p>';
                 });
+        }
+
+        function loadGalleryImageToEditor(filename) {
+            showStatus('Loading image...', 'info');
+            fetch(`/gallery/image/${filename}`)
+                .then(response => response.blob())
+                .then(blob => {
+                    // Create a File object
+                    const file = new File([blob], filename, { type: blob.type });
+                    handleFile(file);
+                    switchTab('image');
+                    showStatus('✓ Image loaded into editor', 'success');
+                })
+                .catch(e => showStatus('✗ Error loading image: ' + e, 'error'));
         }
 
         function handleGalleryUpload(input) {
