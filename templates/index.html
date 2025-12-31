@@ -22,9 +22,11 @@
         <main>
             <!-- Navigation Tabs -->
             <nav class="nav-tabs">
-                <button class="tab-btn active" onclick="switchView('editor')">✨ Editor</button>
-                <button class="tab-btn" onclick="switchView('gallery')">🖼️ Gallery</button>
-                <button class="tab-btn" onclick="switchView('dashboard')">⛅ Dashboard</button>
+                <button class="tab-btn active" data-tab="editor" onclick="switchView('editor')">✨ Editor</button>
+                <button class="tab-btn" data-tab="gallery" onclick="switchView('gallery')">🖼️ Gallery</button>
+                <button class="tab-btn" data-tab="dashboard" onclick="switchView('dashboard')">⛅ Dash</button>
+                <button class="tab-btn" data-tab="system" onclick="switchView('system')">🖥️ System</button>
+                <button class="tab-btn" data-tab="message" onclick="switchView('message')">💬 Message</button>
             </nav>
 
             <!-- EDITOR VIEW -->

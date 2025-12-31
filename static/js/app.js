@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchView(viewId) {
     // Buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        if (btn.innerText.toLowerCase().includes(viewId)) btn.classList.add('active');
+        if (btn.dataset.tab === viewId) btn.classList.add('active');
         else btn.classList.remove('active');
     });
 

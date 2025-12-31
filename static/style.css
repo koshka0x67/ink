@@ -353,10 +353,21 @@ input[type="file"] {
     padding: 4px;
     margin-bottom: 24px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow-x: auto;
+    gap: 4px;
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+}
+
+.nav-tabs::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
 }
 
 .tab-btn {
     flex: 1;
+    min-width: 70px;
+    white-space: nowrap;
     background: transparent;
     border: none;
     color: var(--text-muted);
