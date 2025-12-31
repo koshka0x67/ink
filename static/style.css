@@ -456,13 +456,6 @@ input[type="file"] {
 }
 
 /* Dashboard Form */
-.dashboard-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 24px;
-}
-
 .checkbox-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -478,13 +471,14 @@ input[type="file"] {
     color: var(--text-muted);
     cursor: pointer;
     padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 10px;
     transition: background 0.2s;
 }
 
 .checkbox-label:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .checkbox-label input {
@@ -500,4 +494,9 @@ input[type="file"] {
     color: var(--text-muted);
     font-size: 14px;
     grid-column: 1 / -1;
+}
+
+/* Button Active State */
+.btn:active {
+    transform: scale(0.97);
 }

@@ -88,37 +88,11 @@
 
             <!-- DASHBOARD VIEW -->
             <div id="view-dashboard" class="view-section">
-                <div class="dashboard-card">
+                <h2 style="font-size:16px; margin:0 0 12px 4px; opacity:0.6;">Weather Data</h2>
+                <div class="dashboard-card mobile-spacing">
                     <div class="form-group">
                         <label>City Name</label>
                         <input type="text" id="dashCity" class="form-input" placeholder="e.g. Tokyo">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Temperature Units</label>
-                        <select id="dashUnits" class="form-input" style="background:rgba(0,0,0,0.3); color:white;">
-                            <option value="c">Celsius (°C)</option>
-                            <option value="f">Fahrenheit (°F)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Device Orientation</label>
-                        <select id="dashRotation" class="form-input" style="background:rgba(0,0,0,0.3); color:white;">
-                            <option value="0">0° (Horizontal)</option>
-                            <option value="90">90° (Vertical)</option>
-                            <option value="180">180° (Inverted Horizontal)</option>
-                            <option value="270">270° (Inverted Vertical)</option>
-                        </select>
-                    </div>
-
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="dashFlipH"> Mirror Horizontal
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="dashFlipV"> Flip Vertical
-                        </label>
                     </div>
 
                     <div class="checkbox-group">
@@ -133,13 +107,48 @@
                         </label>
                     </div>
 
-                    <button class="btn btn-primary" style="width:100%" onclick="updateDashboard()">
-                        <span>⛅</span> Render Dashboard
-                    </button>
-                    <div class="instructions" style="margin-top:10px">
-                        Renders weather data to the display
+                    <div class="form-group" style="margin-top:16px">
+                        <label>Units</label>
+                        <div class="segmented-control">
+                            <input type="radio" name="units" value="c" id="unitC" checked onclick="setUnit('c')">
+                            <label for="unitC">Celsius</label>
+                            <input type="radio" name="units" value="f" id="unitF" onclick="setUnit('f')">
+                            <label for="unitF">Fahrenheit</label>
+                        </div>
+                        <!-- Hidden select to keep compatibility with existing JS logic -->
+                        <select id="dashUnits" style="display:none">
+                            <option value="c">Celsius (°C)</option>
+                            <option value="f">Fahrenheit (°F)</option>
+                        </select>
                     </div>
                 </div>
+
+                <h2 style="font-size:16px; margin:24px 0 12px 4px; opacity:0.6;">Device Config</h2>
+                <div class="dashboard-card mobile-spacing">
+                    <div class="form-group">
+                        <label>Rotation</label>
+                        <select id="dashRotation" class="form-input" style="background:rgba(0,0,0,0.3); color:white;">
+                            <option value="0">0° (Horizontal)</option>
+                            <option value="90">90° (Vertical)</option>
+                            <option value="180">180° (Inverted)</option>
+                            <option value="270">270° (Inverted Vert)</option>
+                        </select>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="dashFlipH"> Mirror H
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="dashFlipV"> Flip V
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width:100%; margin-top:24px; padding:16px;"
+                    onclick="updateDashboard()">
+                    <span>⛅</span> Render Dashboard
+                </button>
             </div>
 
         </main>

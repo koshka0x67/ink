@@ -324,7 +324,14 @@ function loadDashboardSettings() {
         .then(r => r.json())
         .then(s => {
             if (s.city) document.getElementById('dashCity').value = s.city;
-            if (s.units) document.getElementById('dashUnits').value = s.units;
+
+            // Handle Unit Radio Buttons
+            if (s.units) {
+                document.getElementById('dashUnits').value = s.units;
+                if (s.units === 'c') document.getElementById('unitC').checked = true;
+                if (s.units === 'f') document.getElementById('unitF').checked = true;
+            }
+
             if (s.rotation !== undefined) document.getElementById('dashRotation').value = s.rotation;
 
             document.getElementById('dashFlipH').checked = !!s.flip_h;
@@ -363,6 +370,10 @@ function updateDashboard() {
             if (d.success) showStatus('Dashboard Updated', 'success');
             else showStatus('Render Failed: ' + d.error, 'error');
         });
+}
+
+function setUnit(val) {
+    document.getElementById('dashUnits').value = val;
 }
 
 /* Helpers */
