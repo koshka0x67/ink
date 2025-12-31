@@ -24,7 +24,7 @@ class Config:
     
     # E-Paper library path
     # E-Paper library path
-    EPD_PATH = os.getenv('EPAPER_LIB_PATH', os.path.join(os.getcwd(), 'lib', 'waveshare', 'RaspberryPi_JetsonNano', 'python', 'lib'))
+    EPD_PATH = os.getenv('EPAPER_LIB_PATH', '/home/purin/e-Paper/RaspberryPi_JetsonNano/python/lib')
     
     # Server settings
     HOST = os.getenv('EPAPER_HOST', '0.0.0.0')
