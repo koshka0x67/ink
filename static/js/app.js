@@ -323,19 +323,31 @@ function loadDashboardSettings() {
     fetch('/settings')
         .then(r => r.json())
         .then(s => {
+            // Dashboard Inputs
             if (s.city) document.getElementById('dashCity').value = s.city;
-
-            // Handle Unit Radio Buttons
             if (s.units) {
                 document.getElementById('dashUnits').value = s.units;
                 if (s.units === 'c') document.getElementById('unitC').checked = true;
                 if (s.units === 'f') document.getElementById('unitF').checked = true;
             }
+            if (s.rotation !== undefined) {
+                document.getElementById('dashRotation').value = s.rotation;
+                // System Inputs
+                const sysRot = document.getElementById('sysRotation');
+                if (sysRot) sysRot.value = s.rotation;
+            }
 
-            if (s.rotation !== undefined) document.getElementById('dashRotation').value = s.rotation;
+            const flipH = !!s.flip_h;
+            const flipV = !!s.flip_v;
 
-            document.getElementById('dashFlipH').checked = !!s.flip_h;
-            document.getElementById('dashFlipV').checked = !!s.flip_v;
+            document.getElementById('dashFlipH').checked = flipH;
+            document.getElementById('dashFlipV').checked = flipV;
+
+            // System Inputs
+            const sysFlipH = document.getElementById('sysFlipH');
+            const sysFlipV = document.getElementById('sysFlipV');
+            if (sysFlipH) sysFlipH.checked = flipH;
+            if (sysFlipV) sysFlipV.checked = flipV;
 
             document.getElementById('dashHum').checked = !!s.show_humidity;
             document.getElementById('dashWind').checked = !!s.show_wind;
@@ -378,11 +390,29 @@ function setUnit(val) {
 
 /* --- System Logic --- */
 function renderSystem() {
+    // Collect System Settings
+    const payload = {
+        rotation: parseInt(document.getElementById('sysRotation').value),
+        flip_h: document.getElementById('sysFlipH').checked,
+        flip_v: document.getElementById('sysFlipV').checked
+    };
+
     showStatus('Scanning System...', 'info');
-    fetch('/render_system', { method: 'POST' })
+
+    // Save settings first (updates global rotation)
+    fetch('/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+        .then(() => fetch('/render_system', { method: 'POST' }))
         .then(r => r.json())
         .then(d => {
-            if (d.success) showStatus('System Stats Displayed', 'success');
+            if (d.success) {
+                showStatus('System Stats Displayed', 'success');
+                // Sync Dashboard UI too
+                loadDashboardSettings();
+            }
             else showStatus('Error: ' + d.error, 'error');
         });
 }

@@ -44,9 +44,8 @@ auto_running = False
 def render_system_route():
     """Render system stats"""
     try:
-        # Force 0 rotation (Landscape)
+        # Use global settings
         sys_settings = settings.copy()
-        sys_settings['rotation'] = 0
         
         img = system_renderer.render_system(sys_settings)
         save_preview(img)
