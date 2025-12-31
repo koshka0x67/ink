@@ -13,6 +13,8 @@ from PIL import Image
 from config import Config
 from display_manager import DisplayManager
 from dashboard_renderer import DashboardRenderer
+from system_renderer import SystemRenderer
+from message_renderer import MessageRenderer
 from utils.logger import setup_logging, get_logger, ErrorHandler
 from utils.validators import InputValidator, ValidationError, validate_request_data
 
@@ -28,11 +30,54 @@ app = Flask(__name__)
 # Initialize components
 display_manager = DisplayManager()
 dashboard_renderer = DashboardRenderer()
+system_renderer = SystemRenderer()
+message_renderer = MessageRenderer()
 
 # Global state
 settings = Config.load_settings()
 auto_thread = None
 auto_running = False
+
+# ... (Existing code) ...
+
+@app.route('/render_system', methods=['POST'])
+def render_system_route():
+    """Render system stats"""
+    try:
+        # Force 0 rotation (Landscape)
+        sys_settings = settings.copy()
+        sys_settings['rotation'] = 0
+        
+        img = system_renderer.render_system(sys_settings)
+        save_preview(img)
+        success = display_manager.display_image(img, sys_settings)
+        return jsonify({'success': bool(success)})
+    except Exception as e:
+        logger.error(f"Render system error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/render_message', methods=['POST'])
+def render_message_route():
+    """Render custom message"""
+    try:
+        data = request.get_json(silent=True) or {}
+        text = data.get('text', '')
+        font_size = data.get('font_size', 'medium')
+        
+        # Determine rotation (Message follows device config? Or Force Landscape?)
+        # Let's respect global rotation for text message
+        msg_settings = settings.copy()
+        msg_settings['font_size'] = font_size
+        
+        img = message_renderer.render_message(text, msg_settings)
+        save_preview(img)
+        success = display_manager.display_image(img, msg_settings)
+        return jsonify({'success': bool(success)})
+    except Exception as e:
+        logger.error(f"Render message error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+
 
 def save_preview(img: Image.Image):
     """Save dashboard preview image"""

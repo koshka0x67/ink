@@ -376,6 +376,44 @@ function setUnit(val) {
     document.getElementById('dashUnits').value = val;
 }
 
+/* --- System Logic --- */
+function renderSystem() {
+    showStatus('Scanning System...', 'info');
+    fetch('/render_system', { method: 'POST' })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) showStatus('System Stats Displayed', 'success');
+            else showStatus('Error: ' + d.error, 'error');
+        });
+}
+
+/* --- Message Logic --- */
+let currentMsgSize = 'medium';
+
+function setMsgSize(size) {
+    currentMsgSize = size;
+}
+
+function renderMessage() {
+    const text = document.getElementById('msgText').value;
+    if (!text) return showStatus('Enter a message first', 'error');
+
+    showStatus('Sending Message...', 'info');
+    fetch('/render_message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            text: text,
+            font_size: currentMsgSize
+        })
+    })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) showStatus('Message Sent', 'success');
+            else showStatus('Error: ' + d.error, 'error');
+        });
+}
+
 /* Helpers */
 function showStatus(msg, type = 'info') {
     const el = document.getElementById('statusBar');

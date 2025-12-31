@@ -151,6 +151,47 @@
                 </button>
             </div>
 
+            <!-- SYSTEM VIEW -->
+            <div id="view-system" class="view-section">
+                <div class="dashboard-card center-content" style="padding:40px 20px;">
+                    <button class="btn btn-primary" style="width:100%; padding:20px; font-size:16px;"
+                        onclick="renderSystem()">
+                        <span>🖥️</span> Render System Monitor
+                    </button>
+                    <p class="instructions" style="margin-top:20px">
+                        Displays CPU, RAM, Disk, IP, and Uptime with a retro face.
+                    </p>
+                </div>
+            </div>
+
+            <!-- MESSAGE VIEW -->
+            <div id="view-message" class="view-section">
+                <div class="dashboard-card">
+                    <div class="form-group">
+                        <label>Custom Message</label>
+                        <textarea id="msgText" class="form-input" rows="4"
+                            placeholder="Type your message here..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Text Size</label>
+                        <div class="segmented-control">
+                            <input type="radio" name="fsize" value="small" id="fsSmall" onclick="setMsgSize('small')">
+                            <label for="fsSmall">Small</label>
+                            <input type="radio" name="fsize" value="medium" id="fsMed" checked
+                                onclick="setMsgSize('medium')">
+                            <label for="fsMed">Medium</label>
+                            <input type="radio" name="fsize" value="large" id="fsLarge" onclick="setMsgSize('large')">
+                            <label for="fsLarge">Large</label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width:100%; margin-top:20px;" onclick="renderMessage()">
+                        <span>✎</span> Send Message
+                    </button>
+                </div>
+            </div>
+
         </main>
 
         <div id="statusBar" class="status-bar">Ready</div>
