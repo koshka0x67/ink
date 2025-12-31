@@ -327,6 +327,9 @@ function loadDashboardSettings() {
             if (s.units) document.getElementById('dashUnits').value = s.units;
             if (s.rotation !== undefined) document.getElementById('dashRotation').value = s.rotation;
 
+            document.getElementById('dashFlipH').checked = !!s.flip_h;
+            document.getElementById('dashFlipV').checked = !!s.flip_v;
+
             document.getElementById('dashHum').checked = !!s.show_humidity;
             document.getElementById('dashWind').checked = !!s.show_wind;
             document.getElementById('dashSun').checked = !!s.show_sun;
@@ -339,6 +342,8 @@ function updateDashboard() {
         city: document.getElementById('dashCity').value,
         units: document.getElementById('dashUnits').value,
         rotation: parseInt(document.getElementById('dashRotation').value),
+        flip_h: document.getElementById('dashFlipH').checked,
+        flip_v: document.getElementById('dashFlipV').checked,
         show_humidity: document.getElementById('dashHum').checked,
         show_wind: document.getElementById('dashWind').checked,
         show_sun: document.getElementById('dashSun').checked
