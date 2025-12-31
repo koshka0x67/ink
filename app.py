@@ -123,6 +123,10 @@ def upload():
         # Validate and get resize/crop parameters
         image_data = {
             'scale': request.form.get('scale', 1.0),
+            'offset_x': request.form.get('offset_x', 0),
+            'offset_y': request.form.get('offset_y', 0),
+            'rotation': request.form.get('rotation', 0),
+            # Legacy
             'crop_x': request.form.get('crop_x', 0),
             'crop_y': request.form.get('crop_y', 0),
             'crop_w': request.form.get('crop_w', Config.DISPLAY_WIDTH),
@@ -135,6 +139,10 @@ def upload():
         img = display_manager.process_image(
             file, 
             scale=validated_data['scale'],
+            offset_x=validated_data['offset_x'],
+            offset_y=validated_data['offset_y'],
+            rotation=validated_data['rotation'],
+            # Legacy passed for safety
             crop_x=validated_data['crop_x'],
             crop_y=validated_data['crop_y'],
             crop_w=validated_data['crop_w'],

@@ -56,51 +56,71 @@ class DisplayManager:
             logger.error(f"Error initializing display: {e}")
             return None
     
-    def process_image(self, image_file, scale: float = 1.0, crop_x: int = 0, crop_y: int = 0, 
+    def process_image(self, image_file, scale: float = 1.0, 
+                     offset_x: int = 0, offset_y: int = 0, 
+                     rotation: float = 0,
+                     # Legacy params kept for compatibility but ignored if new ones present
+                     crop_x: int = 0, crop_y: int = 0, 
                      crop_w: Optional[int] = None, crop_h: Optional[int] = None) -> Image.Image:
-        """Convert and resize image for e-Paper display with optional scaling and cropping"""
+        """
+        Process image with Affine Transformation (Scale -> Rotate -> Translate)
+        Matches the HTML5 Canvas logic in the frontend.
+        """
         try:
             img = Image.open(image_file)
             img = img.convert('RGB')
             
-            # Apply scaling
+            # 1. Scale
             if scale != 1.0:
-                new_size = (int(img.width * scale), int(img.height * scale))
-                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                new_w = int(img.width * scale)
+                new_h = int(img.height * scale)
+                # Prevent zero size
+                new_w = max(1, new_w)
+                new_h = max(1, new_h)
+                img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
             
-            # Set default crop dimensions if not provided
-            if crop_w is None:
-                crop_w = Config.DISPLAY_WIDTH
-            if crop_h is None:
-                crop_h = Config.DISPLAY_HEIGHT
+            # 2. Rotate (Content Rotation)
+            # PIL rotates counter-clockwise, Canvas rotates clockwise. 
+            # So we invert the angle. expand=True matches drawing full rotated image.
+            if rotation != 0:
+                img = img.rotate(-rotation, expand=True, resample=Image.Resampling.BICUBIC)
             
-            # Apply cropping
-            if crop_x > 0 or crop_y > 0 or crop_w < img.width or crop_h < img.height:
-                # Ensure crop coordinates are within image bounds
-                crop_x = max(0, min(crop_x, img.width - 1))
-                crop_y = max(0, min(crop_y, img.height - 1))
-                crop_w = min(crop_w, img.width - crop_x)
-                crop_h = min(crop_h, img.height - crop_y)
-                
-                img = img.crop((crop_x, crop_y, crop_x + crop_w, crop_y + crop_h))
+            # 3. Create Canvas (Viewport)
+            target_w = Config.DISPLAY_WIDTH
+            target_h = Config.DISPLAY_HEIGHT
+            canvas = Image.new('RGB', (target_w, target_h), 'black') # Fill black (off) or white? User interface is black bg.
             
-            # Create final image with proper dimensions
-            new_img = Image.new('RGB', (Config.DISPLAY_WIDTH, Config.DISPLAY_HEIGHT), 'white')
+            # Note: E-Paper usually treats White as "Empty/Background" and Black as "Ink".
+            # If the user pans the image away, the background should be White (Clear) or Black?
+            # Index.html css has background #1a1a1a (dark).
+            # Let's use White as the "Canvas Color" so empty space is clean.
+            canvas = Image.new('RGB', (target_w, target_h), 'white')
             
-            # Center the processed image
-            x = (Config.DISPLAY_WIDTH - img.width) // 2
-            y = (Config.DISPLAY_HEIGHT - img.height) // 2
-            new_img.paste(img, (x, y))
+            # 4. Paste (Translate)
+            # Center of canvas is (target_w/2, target_h/2)
+            # User offset is (offset_x, offset_y) applied to the center.
+            # Center of image should be at (target_w/2 + offset_x, target_h/2 + offset_y)
             
-            # Convert to black and white
-            gray_img = new_img.convert('L')
+            center_x = target_w // 2 + offset_x
+            center_y = target_h // 2 + offset_y
+            
+            paste_x = int(center_x - img.width / 2)
+            paste_y = int(center_y - img.height / 2)
+            
+            # Paste with mask if transparent (though we converted to RGB above, 
+            # if original was RGBA we might want to keep alpha for compositing? 
+            # For now RGB is fine, assuming rectangular images).
+            canvas.paste(img, (paste_x, paste_y))
+            
+            # 5. Convert to 1-bit Dithered
+            gray_img = canvas.convert('L')
             bw_img = gray_img.convert('1', dither=Image.Dither.FLOYDSTEINBERG)
             
-            # Save debug and base images
-            bw_img.save('/tmp/debug_processed.bmp')
+            # Save debug
             bw_img.save(Config.CURRENT_IMAGE_BASE)
             
             return bw_img
+            
         except Exception as e:
             logger.error(f"Error processing image: {e}")
             raise
