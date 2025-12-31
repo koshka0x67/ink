@@ -23,7 +23,8 @@ class Config:
     GALLERY_PATH = os.getenv('EPAPER_GALLERY_PATH', os.path.join(os.getcwd(), 'static', 'gallery'))
     
     # E-Paper library path
-    EPD_PATH = os.getenv('EPAPER_LIB_PATH', '/home/pi/e-Paper/RaspberryPi_JetsonNano/python/lib')
+    # E-Paper library path
+    EPD_PATH = os.getenv('EPAPER_LIB_PATH', os.path.join(os.getcwd(), 'lib', 'waveshare', 'RaspberryPi_JetsonNano', 'python', 'lib'))
     
     # Server settings
     HOST = os.getenv('EPAPER_HOST', '0.0.0.0')
