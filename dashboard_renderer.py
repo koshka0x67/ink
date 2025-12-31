@@ -148,7 +148,7 @@ class DashboardRenderer:
         self._render_right_column(draw, weather_data, settings, divider_y, left_x, left_col_max_w, right_margin)
         
         # Apply orientation and flips
-        return self._apply_transforms(img, settings)
+        return img
     
     def _format_temperature(self, temp_c: float, units: str) -> str:
         """Format temperature based on units"""
@@ -190,15 +190,3 @@ class DashboardRenderer:
             w, h = self._measure_text(draw, txt, self.fonts['med'])
             draw.text((right_col_xmax - w, y), txt, font=self.fonts['med'], fill=0)
             y += h + 2
-    
-    def _apply_transforms(self, img: Image.Image, settings: Dict[str, Any]) -> Image.Image:
-        """Apply rotation and flip transforms"""
-        output = img
-        rot = settings.get('rotation', 0)
-        if rot % 360 != 0:
-            output = output.rotate(rot, expand=True)
-        if settings.get('flip_h'):
-            output = ImageOps.mirror(output)
-        if settings.get('flip_v'):
-            output = ImageOps.flip(output)
-        return output

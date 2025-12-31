@@ -20,46 +20,106 @@
         </header>
 
         <main>
-            <!-- Visual Editor Stage -->
-            <div class="editor-stage">
-                <div class="canvas-wrapper" style="position:relative; width:100%;">
-                    <div class="canvas-container">
-                        <canvas id="editorCanvas"></canvas>
-                        <div class="overlay-guide"></div>
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs">
+                <button class="tab-btn active" onclick="switchView('editor')">✨ Editor</button>
+                <button class="tab-btn" onclick="switchView('gallery')">🖼️ Gallery</button>
+                <button class="tab-btn" onclick="switchView('dashboard')">⛅ Dashboard</button>
+            </nav>
 
-                        <!-- Upload overlay prompt -->
-                        <div id="uploadPrompt" class="upload-prompt">
-                            <div class="icon-large">📷</div>
-                            <span>Tap to Upload Image</span>
-                            <div class="instructions">Supports JPG, PNG, GIF</div>
+            <!-- EDITOR VIEW -->
+            <div id="view-editor" class="view-section active">
+                <div class="editor-stage">
+                    <div class="canvas-wrapper" style="position:relative; width:100%;">
+                        <div class="canvas-container">
+                            <canvas id="editorCanvas"></canvas>
+                            <div class="overlay-guide"></div>
+
+                            <!-- Upload overlay prompt -->
+                            <div id="uploadPrompt" class="upload-prompt">
+                                <div class="icon-large">📷</div>
+                                <span>Tap to Upload Image</span>
+                                <div class="instructions">Supports JPG, PNG, GIF</div>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="controls-row">
+                        <button class="btn" onclick="rotate90()">
+                            <span class="btn-icon">↺</span> Rotate
+                        </button>
+                        <button id="btnUpload" class="btn btn-primary" onclick="uploadImage()">
+                            <span>🚀</span> Update Display
+                        </button>
+                    </div>
+
+                    <div class="instructions" style="margin-top:20px">
+                        Drag to Pan • Pinch to Zoom • Tap to Update
                     </div>
                 </div>
 
-                <div class="controls-row">
-                    <button class="btn" onclick="rotate90()">
-                        <span class="btn-icon">↺</span> Rotate
-                    </button>
-                    <button id="btnUpload" class="btn btn-primary" onclick="uploadImage()">
-                        <span>🚀</span> Update Display
-                    </button>
-                </div>
-
-                <div class="instructions" style="margin-top:20px">
-                    Drag to Pan • Pinch to Zoom • 2 Fingers to Rotate (Coming Soon)
+                <!-- Quick Actions moved inside Editor View -->
+                <div class="actions-grid">
+                    <div class="action-card" onclick="clearDisplay()">
+                        <span>🗑️</span>
+                        <h3>Clear Screen</h3>
+                    </div>
+                    <div class="action-card" onclick="location.reload()">
+                        <span>🔄</span>
+                        <h3>Reload App</h3>
+                    </div>
                 </div>
             </div>
 
-            <!-- Utility Actions -->
-            <h3 style="margin:20px 0 10px 0; font-size:14px; color:#a3a3a3;">Quick Actions</h3>
-            <div class="actions-grid">
-                <div class="action-card" onclick="clearDisplay()">
-                    <span>🗑️</span>
-                    <h3>Clear Screen</h3>
+            <!-- GALLERY VIEW -->
+            <div id="view-gallery" class="view-section">
+                <div class="controls-row">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInputGallery').click()">
+                        <span>➕</span> Add Image
+                    </button>
+                    <button class="btn" onclick="loadGallery()">
+                        <span>🔄</span> Refresh
+                    </button>
                 </div>
-                <div class="action-card" onclick="location.reload()">
-                    <span>🔄</span>
-                    <h3>Reload App</h3>
+                <div id="galleryGrid" class="gallery-grid">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- DASHBOARD VIEW -->
+            <div id="view-dashboard" class="view-section">
+                <div class="dashboard-card">
+                    <div class="form-group">
+                        <label>City Name</label>
+                        <input type="text" id="dashCity" class="form-input" placeholder="e.g. Tokyo">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Temperature Units</label>
+                        <select id="dashUnits" class="form-input" style="background:rgba(0,0,0,0.3); color:white;">
+                            <option value="c">Celsius (°C)</option>
+                            <option value="f">Fahrenheit (°F)</option>
+                        </select>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="dashHum" checked> Humidity
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="dashWind" checked> Wind
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="dashSun" checked> Sunrise/Set
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary" style="width:100%" onclick="updateDashboard()">
+                        <span>⛅</span> Render Dashboard
+                    </button>
+                    <div class="instructions" style="margin-top:10px">
+                        Renders weather data to the display
+                    </div>
                 </div>
             </div>
 
@@ -67,8 +127,9 @@
 
         <div id="statusBar" class="status-bar">Ready</div>
 
-        <!-- Hidden Input -->
+        <!-- Hidden Inputs -->
         <input type="file" id="fileInput" accept="image/*">
+        <input type="file" id="fileInputGallery" accept="image/*" onchange="uploadToGallery(this)">
     </div>
 
     <script src="/static/js/app.js"></script>
