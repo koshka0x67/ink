@@ -48,7 +48,10 @@ class DisplayManager:
             if self.epd_instance is None:
                 epd = self.epd_class()
                 epd.init()
+                import time
+                time.sleep(1) # Allow display to wake up fully
                 epd.Clear(0xFF)
+                time.sleep(1) # Allow clear to finish
                 logger.info(f"EPD initialized. width={epd.width}, height={epd.height}")
                 self.epd_instance = epd
             return self.epd_instance

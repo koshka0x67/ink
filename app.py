@@ -278,9 +278,14 @@ def settings_route():
 def render_dashboard_route():
     """Render and display dashboard"""
     try:
-        img = dashboard_renderer.render_dashboard(settings)
+        # Dashboard renders in landscape natively, so we force rotation to 0
+        # to prevent DisplayManager from rotating it again (if global rotation is 90)
+        dash_settings = settings.copy()
+        dash_settings['rotation'] = 0
+        
+        img = dashboard_renderer.render_dashboard(dash_settings)
         save_preview(img)
-        success = display_manager.display_image(img, settings)
+        success = display_manager.display_image(img, dash_settings)
         return jsonify({'success': bool(success)})
     except Exception as e:
         logger.error(f"Render error: {e}")
