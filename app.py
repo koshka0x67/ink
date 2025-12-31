@@ -141,7 +141,7 @@ def upload():
             crop_h=validated_data['crop_h']
         )
         
-        )
+
         
         # Switch to image mode
         if settings.get('mode') != 'image':
